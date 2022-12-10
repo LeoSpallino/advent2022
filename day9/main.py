@@ -1,69 +1,66 @@
 class Point:
-  def __init__(self, nextKnot=None):
+  def __init__(self):
     self.X = 0
     self.Y = 0
-    self.nextKnot = nextKnot
+    self.visited = {(self.X, self.Y)}
 
   def getCoord(self):
     return (self.X, self.Y)
 
-  def getNextKnot(self):
-    return self.nextKnot
+  def move(self, direction):
+    self.X += moves[direction]['X']
+    self.Y += moves[direction]['Y']
+
+  def follow(self, point):
+    deltaX = point.X - self.X
+    deltaY = point.Y - self.Y
+    distance = max(abs(deltaX), abs(deltaY))
+    if distance > 1:
+      if deltaX > 1:
+        self.X += 1
+        self.Y = point.Y
+      if deltaX < -1:
+        self.X -= 1
+        self.Y = point.Y
+      if deltaY > 1:
+        self.X = point.X
+        self.Y += 1
+      if deltaY < -1:
+        self.X = point.X
+        self.Y -= 1
+    self.visited.add((self.X, self.Y))
 
 
-class Rope:
-  def __init__(self):
-    self.head = Point()
-    self.tail = Point()
-    self.visited = {self.tail.getCoord()}
-
-  def _shouldTailMove(self):
-    headX, headY = self.head.getCoord()
-    tailX, tailY = self.tail.getCoord()
-
-    if abs(headX - tailX) > 1 or abs(headY - tailY) > 1:
-      return True
-    return False
-
-  def _moveTail(self, direction):
-    match direction:
-      case 'U':
-        self.tail.X = self.head.X
-        self.tail.Y += 1
-      case 'D':
-        self.tail.X = self.head.X
-        self.tail.Y -= 1
-      case 'L':
-        self.tail.Y = self.head.Y
-        self.tail.X -= 1
-      case 'R':
-        self.tail.Y = self.head.Y
-        self.tail.X += 1
-
-    self.visited.add(self.tail.getCoord())
-
-  def moveHead(self, direction, amount):
-    for _ in range(amount):
-      match direction:
-        case 'U':
-          self.head.Y += 1
-        case 'D':
-          self.head.Y -= 1
-        case 'L':
-          self.head.X -= 1
-        case 'R':
-          self.head.X += 1
-      if self._shouldTailMove():
-        self._moveTail(direction)
+moves = {
+    'U': {
+        'X': 0,
+        'Y': 1
+    },
+    'D': {
+        'X': 0,
+        'Y': -1
+    },
+    'L': {
+        'X': -1,
+        'Y': 0,
+    },
+    'R': {
+        'X': 1,
+        'Y': 0
+    }
+}
 
 
 def part1(data):
-  rope = Rope()
+  head = Point()
+  tail = Point()
 
   for direction, amount in data:
-    rope.moveHead(direction, amount)
+    for i in range(amount):
+      head.move(direction)
+      tail.follow(head)
 
-  return len(rope.visited)
+  return len(tail.visited)
 
 
 def part2(data):
@@ -89,7 +86,7 @@ def solve(puzzleInput):
 
 
 if __name__ == '__main__':
-  file = open('testCase1.txt', 'r')
+  file = open('testCase.txt', 'r')
   puzzleInput = [line.strip() for line in file.readlines()]
   solutions = solve(puzzleInput)
   print("\n".join(str(solution) for solution in solutions))
