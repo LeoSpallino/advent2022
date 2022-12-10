@@ -16,18 +16,22 @@ class Point:
     deltaY = point.Y - self.Y
     distance = max(abs(deltaX), abs(deltaY))
     if distance > 1:
-      if deltaX > 1:
-        self.X += 1
-        self.Y = point.Y
-      if deltaX < -1:
-        self.X -= 1
-        self.Y = point.Y
-      if deltaY > 1:
-        self.X = point.X
-        self.Y += 1
-      if deltaY < -1:
-        self.X = point.X
-        self.Y -= 1
+      if abs(deltaX) == abs(deltaY):
+        self.X += deltaX / abs(deltaX)
+        self.Y += deltaY / abs(deltaY)
+      else:
+        if deltaX > 1:
+          self.X += 1
+          self.Y = point.Y
+        if deltaX < -1:
+          self.X -= 1
+          self.Y = point.Y
+        if deltaY > 1:
+          self.X = point.X
+          self.Y += 1
+        if deltaY < -1:
+          self.X = point.X
+          self.Y -= 1
     self.visited.add((self.X, self.Y))
 
 
@@ -64,7 +68,14 @@ def part1(data):
 
 
 def part2(data):
-  pass
+  knots = [Point() for _ in range(10)]
+  for direction, amount in data:
+    for _ in range(amount):
+      knots[0].move(direction)
+      for j in range(1, len(knots)):
+        knots[j].follow(knots[j-1])
+
+  return len(knots[-1].visited)
 
 
 def parseInput(puzzleInput):
