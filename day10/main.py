@@ -35,7 +35,32 @@ def part1(data):
 
 
 def part2(data):
-  pass
+  queue = deque([])
+  spritePos = 1
+  crtLines = []
+  crtCursor = 0
+
+  for line in data:
+    if line == 'noop':
+      queue.append(None)
+    else:
+      add = line.split(' ')[1]
+      queue.append(None)
+      queue.append(int(add))
+
+  while len(queue) > 0:
+    if abs((crtCursor % 40) - spritePos) <= 1:
+      crtLines.append('#')
+    else:
+      crtLines.append(' ')
+    curr = queue.popleft()
+    if curr is not None:
+      spritePos += curr
+    crtCursor += 1
+
+  drawing = [crtLines[i:i+40] for i in range(0, len(crtLines), 40)]
+  for line in drawing:
+    print(''.join(line))
 
 
 def solve(puzzleInput):
